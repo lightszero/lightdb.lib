@@ -6,7 +6,7 @@ using System.Text;
 
 namespace LightDB
 {
-    class TableKeyFinder : IEnumerable<byte[]>
+    class TableKeyFinder : IKeyFinder
     {
         public TableKeyFinder(SnapShot _snapshot, byte[] _tableid, byte[] _beginkey, byte[] _endkey)
         {
@@ -29,7 +29,8 @@ namespace LightDB
             return GetEnumerator();
         }
     }
-    class TableIterator : IEnumerator<byte[]>
+
+    class TableIterator : IKeyIterator
     {
         public TableIterator(SnapShot snapshot, byte[] _tableid, byte[] _beginkeyfinal, byte[] _endkeyfinal)
         {
@@ -40,6 +41,13 @@ namespace LightDB
             this.endkeyfinal = _endkeyfinal;
             //this.Reset();
 
+        }
+        public UInt64 HandleID
+        {
+            get
+            {
+                return (UInt64)itPtr.ToInt64();
+            }
         }
         bool bInit = false;
         IntPtr itPtr;

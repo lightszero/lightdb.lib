@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard20</TargetFrameworks>
+    <TargetFramework>netstandard20</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
     <PackageProjectUrl>https://github.com/lightszero/lightdb.lib</PackageProjectUrl>
   </PropertyGroup>
 

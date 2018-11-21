@@ -85,12 +85,12 @@ namespace LightDB
         {
             return DBValue.FromRaw(GetValueData(tableid, key));
         }
-        public IEnumerable<byte[]> CreateKeyFinder(byte[] tableid, byte[] beginkey = null, byte[] endkey = null)
+        public IKeyFinder CreateKeyFinder(byte[] tableid, byte[] beginkey = null, byte[] endkey = null)
         {
             TableKeyFinder find = new TableKeyFinder(this, tableid, beginkey, endkey);
             return find;
         }
-        public IEnumerator<byte[]> CreateKeyIterator(byte[] tableid, byte[] _beginkey = null, byte[] _endkey = null)
+        public IKeyIterator CreateKeyIterator(byte[] tableid, byte[] _beginkey = null, byte[] _endkey = null)
         {
             var beginkey = Helper.CalcKey(tableid, _beginkey);
             var endkey = Helper.CalcKey(tableid, _endkey);
@@ -103,6 +103,14 @@ namespace LightDB
             if (data == null)
                 return null;
             return TableInfo.FromRaw(DBValue.FromRaw(data).value);
+        }
+        public byte[] GetTableInfoData(byte[] tableid)
+        {
+            var tablekey = Helper.CalcKey(tableid, null, SplitWord.TableInfo);
+            var data = Native.Instance.rocksdb_get(this.dbPtr, this.readopHandle, tablekey);
+            if (data == null)
+                return null;
+            return data;
         }
         public uint GetTableCount(byte[] tableid)
         {
