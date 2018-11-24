@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard20</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.5</Version>
+    <Version>1.0.6</Version>
     <PackageProjectUrl>https://github.com/lightszero/lightdb.lib</PackageProjectUrl>
   </PropertyGroup>
 
@@ -21,6 +21,8 @@
   <ItemGroup>
     <Content Include="libsnappy.so.1.1.5">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Pack>true</Pack>
+      <copyToOutput>true</copyToOutput>
     </Content>
     <Content Include="native\librocksdb-5.17.0.so">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

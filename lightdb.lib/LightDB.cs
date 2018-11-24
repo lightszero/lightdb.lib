@@ -142,7 +142,9 @@ namespace LightDB
         public static readonly byte[] systemtable_info = new byte[] { 0x00 };
 
         //写入操作需要保持线性，线程安全
-        private void WriteUnsafe(WriteTask task)
+        //writetask 会被修改
+        //所以要返回一个bytearray 留给外部
+        private byte[] WriteUnsafe(WriteTask task)
         {
             lock (systemtable_block)
             {
@@ -177,7 +179,10 @@ namespace LightDB
                     //还要把这个block本身写入，高度写入
                     var finaldata = DBValue.FromValue(DBValue.Type.Bytes, taskblock).ToBytes();
                     DBValue.QuickFixHeight(finaldata, heightbuf);
-                    var blockkey = BitConverter.GetBytes(snapshotLast.DataHeight);
+
+
+
+                    var blockkey = heightbuf;
                     wb.PutUnsafe(systemtable_block, blockkey, finaldata);
                     //wb.Put(systemtable_block, height, taskblock);
 
@@ -191,17 +196,19 @@ namespace LightDB
                     snapshotLast.Dispose();
                     snapshotLast = CreateSnapInfo();
                     snapshotLast.AddRef();
+
+                    return finaldata;
                 }
             }
         }
-        public void Write(WriteTask task)
+        public byte[] Write(WriteTask task)
         {
             foreach (var item in task.items)
             {
                 if (item.tableID != null && item.tableID.Length < 2)
                     throw new Exception("table id is too short.");
             }
-            WriteUnsafe(task);
+            return WriteUnsafe(task);
         }
         //往数据库里写入一块数据
         //public void Write(WriteBatch batch)
