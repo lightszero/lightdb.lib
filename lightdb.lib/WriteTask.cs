@@ -146,7 +146,7 @@ namespace LightDB
             {
                 if (item.value != null)
                 {
-                    DBValue.QuickFixHeight(item.value, heightbuf);
+                    item.value = DBValue.QuickFixHeight(item.value, heightbuf);
                 }
             }
         }
