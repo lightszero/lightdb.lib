@@ -66,6 +66,16 @@ namespace LightDB
             }
             //var timestamp2 = BitConverter.ToUInt64(data, 2 + taglength);
         }
+        public static byte[] QuickGetHeight(byte[] data)
+        {
+            byte[] heightbuf = new byte[8];
+            var tagLength = data[1];
+            for (var i = 0; i < 8; i++)
+            {
+                heightbuf[i] = data[tagLength + 2 + i];
+            }
+            return heightbuf;
+        }
         public static DBValue DeletedValue
         {
             get
