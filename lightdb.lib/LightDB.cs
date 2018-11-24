@@ -12,6 +12,7 @@ namespace LightDB
     {
         public string MagicStr;//设定一个魔法字符串，作为数据库的创建字符串
         public WriteTask FirstTask;//初始化数据库时要同时完成的任务
+        public Action<WriteTask, byte[], IWriteBatch> afterparser;
     }
     public class LightDB : IDisposable
     {
@@ -100,7 +101,7 @@ namespace LightDB
                     }
                 }
                 writetask.Put(systemtable_info, "_magic_".ToBytes_UTF8Encode(), DBValue.FromValue(DBValue.Type.String, createOption.MagicStr));
-                this.WriteUnsafe(writetask);
+                this.WriteUnsafe(writetask, createOption.afterparser);
             }
         }
         private void AddHeight(WriteTask task)
@@ -141,10 +142,11 @@ namespace LightDB
         public static readonly byte[] systemtable_block = new byte[] { 0x01 };
         public static readonly byte[] systemtable_info = new byte[] { 0x00 };
 
+
         //写入操作需要保持线性，线程安全
         //writetask 会被修改
         //所以要返回一个bytearray 留给外部
-        private byte[] WriteUnsafe(WriteTask task)
+        private byte[] WriteUnsafe(WriteTask task, Action<WriteTask, byte[], IWriteBatch> afterparser)
         {
             lock (systemtable_block)
             {
@@ -180,7 +182,7 @@ namespace LightDB
                     var finaldata = DBValue.FromValue(DBValue.Type.Bytes, taskblock).ToBytes();
                     DBValue.QuickFixHeight(finaldata, heightbuf);
 
-
+                    if (afterparser != null) afterparser(task, finaldata, wb);
 
                     var blockkey = heightbuf;
                     wb.PutUnsafe(systemtable_block, blockkey, finaldata);
@@ -201,14 +203,14 @@ namespace LightDB
                 }
             }
         }
-        public byte[] Write(WriteTask task)
+        public byte[] Write(WriteTask task, Action<WriteTask, byte[], IWriteBatch> afterparser = null)
         {
             foreach (var item in task.items)
             {
                 if (item.tableID != null && item.tableID.Length < 2)
                     throw new Exception("table id is too short.");
             }
-            return WriteUnsafe(task);
+            return WriteUnsafe(task, afterparser);
         }
         //往数据库里写入一块数据
         //public void Write(WriteBatch batch)

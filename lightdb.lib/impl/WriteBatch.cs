@@ -4,10 +4,26 @@ using System.Text;
 
 namespace LightDB
 {
+    //public interface IWriteBatchFinal
+    //{
+    //    void PutDataFinal(byte[] finalkey, byte[] value);
+    //    void DeleteFinal(byte[] finalkey);
+    //}
+    public interface IWriteBatch
+    {
+        byte[] GetDataFinal(byte[] finalkey);
+        void CreateTable(TableInfo info);
+        void CreateTable(byte[] tableid, byte[] finaldata);
+        void DeleteTable(byte[] tableid, bool makeTag = false);
+        void PutUnsafe(byte[] tableid, byte[] key, byte[] finaldata);
+        void Put(byte[] tableid, byte[] key, DBValue value);
+        void Delete(byte[] tableid, byte[] key, bool makeTag = false);
+    }
     /// <summary>
     /// WriteBatch 写入批，是个很基本的功能，不应该对外暴露
     /// </summary>
-    class WriteBatch : IDisposable
+
+    class WriteBatch : IWriteBatch, IDisposable
     {
         public WriteBatch(IntPtr dbptr, SnapShot snapshot)
         {
