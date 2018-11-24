@@ -138,7 +138,7 @@ namespace LightDB
         }
         public static DBValue FromRaw(byte[] data)
         {
-            if (data == null)
+            if (data == null||data.Length==0)
                 return null;
             DBValue v = new DBValue();
             //read type

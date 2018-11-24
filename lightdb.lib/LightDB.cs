@@ -13,7 +13,7 @@ namespace LightDB
         public string MagicStr;//设定一个魔法字符串，作为数据库的创建字符串
         public WriteTask FirstTask;//初始化数据库时要同时完成的任务
     }
-    public class LightDB:IDisposable
+    public class LightDB : IDisposable
     {
         public Version Version => typeof(LightDB).Assembly.GetName().Version;
 
@@ -28,7 +28,10 @@ namespace LightDB
             this.defaultWriteOpPtr = RocksDbSharp.Native.Instance.rocksdb_writeoptions_create();
 
             var HandleOption = RocksDbSharp.Native.Instance.rocksdb_options_create();
-            RocksDbSharp.Native.Instance.rocksdb_options_set_create_if_missing(HandleOption, true);
+            if (createOption != null)
+            {
+                RocksDbSharp.Native.Instance.rocksdb_options_set_create_if_missing(HandleOption, true);
+            }
             RocksDbSharp.Native.Instance.rocksdb_options_set_compression(HandleOption, RocksDbSharp.CompressionTypeEnum.rocksdb_snappy_compression);
             //RocksDbSharp.DbOptions option = new RocksDbSharp.DbOptions();
             //option.SetCreateIfMissing(true);
