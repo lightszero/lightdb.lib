@@ -152,6 +152,7 @@ namespace LightDB
             {
                 using (var wb = new WriteBatch(this.dbPtr, snapshotLast))
                 {
+
                     var heightbuf = BitConverter.GetBytes(snapshotLast.DataHeight);
                     foreach (var item in task.items)
                     {
@@ -177,9 +178,9 @@ namespace LightDB
                                 break;
                         }
                     }
-                    var taskblock = task.ToBytes();
+                    var taskblock = task.ToBytes(false);
                     //还要把这个block本身写入，高度写入
-                    var finaldata = DBValue.FromValue(DBValue.Type.Bytes, taskblock).ToBytes();
+                    var finaldata = DBValue.FromValue(DBValue.Type.Bytes, taskblock).ToBytes(true);
                     DBValue.QuickFixHeight(finaldata, heightbuf);
 
                     if (afterparser != null) afterparser(task, finaldata, wb);
@@ -189,7 +190,7 @@ namespace LightDB
                     //wb.Put(systemtable_block, height, taskblock);
 
                     //height++
-                    var finalheight = DBValue.FromValue(DBValue.Type.UINT64, (ulong)(snapshotLast.DataHeight + 1)).ToBytes();
+                    var finalheight = DBValue.FromValue(DBValue.Type.UINT64, (ulong)(snapshotLast.DataHeight + 1)).ToBytes(true);
                     DBValue.QuickFixHeight(finalheight, heightbuf);
                     wb.PutUnsafe(systemtable_info, "_height".ToBytes_UTF8Encode(), finalheight);
 

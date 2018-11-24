@@ -40,9 +40,23 @@ namespace LightDB
         //public RocksDbSharp.RocksDb db;
         public IntPtr readopHandle;
         //public RocksDbSharp.ReadOptions readop;
-        public IntPtr snapshotHandle=IntPtr.Zero;
+        public IntPtr snapshotHandle = IntPtr.Zero;
         //public RocksDbSharp.Snapshot snapshot;
+
+        private UInt64 _dataHeight;
         public UInt64 DataHeight
+        {
+            get
+            {
+                return _dataHeight;
+            }
+            private set
+            {
+                _dataHeight = value;
+                DataHeightBuf = BitConverter.GetBytes(_dataHeight);
+            }
+        }
+        public byte[] DataHeightBuf
         {
             get;
             private set;

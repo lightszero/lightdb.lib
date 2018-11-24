@@ -14,6 +14,10 @@ namespace LightDB
         {
             get;
         }
+        byte[] DataHeightBuf
+        {
+            get;
+        }
         byte[] GetValueData(byte[] tableid, byte[] key);
         DBValue GetValue(byte[] tableid, byte[] key);
         IKeyFinder CreateKeyFinder(byte[] tableid, byte[] beginkey = null, byte[] endkey = null);
