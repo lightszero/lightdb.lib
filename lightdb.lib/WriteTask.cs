@@ -213,7 +213,7 @@ namespace LightDB
             }
             return task;
         }
-        public byte[] ToBytes(bool withSignData)
+        public byte[] ToBytes()
         {
             using (var ms = new System.IO.MemoryStream())
             {

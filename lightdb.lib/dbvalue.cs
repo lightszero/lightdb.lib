@@ -55,16 +55,39 @@ namespace LightDB
             }
             return true;
         }
-        public static void QuickFixHeight(byte[] data, byte[] heightbuf)
+        public static byte[] QuickFixHeight(byte[] data, byte[] heightbuf)
         {
+            int seek = 0;
+
+            //type
             //var v = data[0];
-            var tagLength = data[1];
-            //var timestamp = BitConverter.ToUInt64(data, 2 + taglength);
+            seek++;
+
+            //tag
+            var tagLength = data[seek]; seek++;
+            seek += tagLength;
+
+            //data
+            var datalen = BitConverter.ToUInt32(data, seek); seek += 4;
+            seek += (int)datalen;
+
+
+            //timestep
+            if (seek == data.Length)//add 8 byte
+            {
+                byte[] newdata = new byte[data.Length + 8];
+                for(var i=0;i<data.Length;i++)
+                {
+                    newdata[i] = data[i];
+                }
+                data = newdata;
+            }
             for (var i = 0; i < 8; i++)
             {
-                data[tagLength + 2 + i] = heightbuf[i];
+                data[seek + i] = heightbuf[i];
             }
-            //var timestamp2 = BitConverter.ToUInt64(data, 2 + taglength);
+
+            return data;
         }
         public static byte[] QuickGetHeight(byte[] data)
         {

@@ -146,19 +146,19 @@ namespace LightDB
         //写入操作需要保持线性，线程安全
         //writetask 会被修改
         //所以要返回一个bytearray 留给外部
-        private byte[] WriteUnsafe(WriteTask task, Action<WriteTask, byte[], IWriteBatch> afterparser)
+        private void WriteUnsafe(WriteTask task, Action<WriteTask, byte[], IWriteBatch> afterparser)
         {
             lock (systemtable_block)
             {
                 using (var wb = new WriteBatch(this.dbPtr, snapshotLast))
                 {
 
-                    var heightbuf = BitConverter.GetBytes(snapshotLast.DataHeight);
+                    //var heightbuf = BitConverter.GetBytes(snapshotLast.DataHeight);
                     foreach (var item in task.items)
                     {
                         if (item.value != null)
                         {
-                            DBValue.QuickFixHeight(item.value, heightbuf);
+                            item.value = DBValue.QuickFixHeight(item.value, snapshotLast.DataHeightBuf);
                         }
                         switch (item.op)
                         {
@@ -178,21 +178,18 @@ namespace LightDB
                                 break;
                         }
                     }
-                    var taskblock = task.ToBytes(false);
+                    var taskblock = task.ToBytes();
                     //还要把这个block本身写入，高度写入
-                    var finaldata = DBValue.FromValue(DBValue.Type.Bytes, taskblock).ToBytes(true);
-                    DBValue.QuickFixHeight(finaldata, heightbuf);
+                    var finaldata = DBValue.FromValue(DBValue.Type.Bytes, taskblock);
 
-                    if (afterparser != null) afterparser(task, finaldata, wb);
+                    if (afterparser != null) afterparser(task, taskblock, wb);
 
-                    var blockkey = heightbuf;
-                    wb.PutUnsafe(systemtable_block, blockkey, finaldata);
+                    wb.Put(systemtable_block, snapshotLast.DataHeightBuf, finaldata);
                     //wb.Put(systemtable_block, height, taskblock);
 
                     //height++
-                    var finalheight = DBValue.FromValue(DBValue.Type.UINT64, (ulong)(snapshotLast.DataHeight + 1)).ToBytes(true);
-                    DBValue.QuickFixHeight(finalheight, heightbuf);
-                    wb.PutUnsafe(systemtable_info, "_height".ToBytes_UTF8Encode(), finalheight);
+                    var finalheight = DBValue.FromValue(DBValue.Type.UINT64, (ulong)(snapshotLast.DataHeight + 1));
+                    wb.Put(systemtable_info, "_height".ToBytes_UTF8Encode(), finalheight);
 
                     RocksDbSharp.Native.Instance.rocksdb_write(this.dbPtr, this.defaultWriteOpPtr, wb.batchptr);
                     //this.db.Write(wb.batch);
@@ -200,18 +197,18 @@ namespace LightDB
                     snapshotLast = CreateSnapInfo();
                     snapshotLast.AddRef();
 
-                    return finaldata;
+                    //return finaldata;
                 }
             }
         }
-        public byte[] Write(WriteTask task, Action<WriteTask, byte[], IWriteBatch> afterparser = null)
+        public void Write(WriteTask task, Action<WriteTask, byte[], IWriteBatch> afterparser = null)
         {
             foreach (var item in task.items)
             {
                 if (item.tableID != null && item.tableID.Length < 2)
                     throw new Exception("table id is too short.");
             }
-            return WriteUnsafe(task, afterparser);
+            WriteUnsafe(task, afterparser);
         }
         //往数据库里写入一块数据
         //public void Write(WriteBatch batch)
