@@ -152,7 +152,15 @@ namespace LightDB
             {
                 using (var wb = new WriteBatch(this.dbPtr, snapshotLast))
                 {
+                    //先写入原始block
+                    //先抽数据，之后就会改变了
+                    var taskblock = task.ToBytes();
+                    //还要把这个block本身写入，高度写入
+                    var finaldata = DBValue.FromValue(DBValue.Type.Bytes, taskblock);
+                    wb.Put(systemtable_block, snapshotLast.DataHeightBuf, finaldata);
+                    
 
+                    //逐个执行每一个writetask
                     //var heightbuf = BitConverter.GetBytes(snapshotLast.DataHeight);
                     foreach (var item in task.items)
                     {
@@ -178,15 +186,11 @@ namespace LightDB
                                 break;
                         }
                     }
-                    var taskblock = task.ToBytes();
-                    //还要把这个block本身写入，高度写入
-                    var finaldata = DBValue.FromValue(DBValue.Type.Bytes, taskblock);
 
+                    //在高度增加之前给一个回调插入处理的时机
                     if (afterparser != null) afterparser(task, taskblock, wb);
 
-                    wb.Put(systemtable_block, snapshotLast.DataHeightBuf, finaldata);
-                    //wb.Put(systemtable_block, height, taskblock);
-
+                    //增加高度
                     //height++
                     var finalheight = DBValue.FromValue(DBValue.Type.UINT64, (ulong)(snapshotLast.DataHeight + 1));
                     wb.Put(systemtable_info, "_height".ToBytes_UTF8Encode(), finalheight);

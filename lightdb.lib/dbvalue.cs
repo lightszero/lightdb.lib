@@ -76,7 +76,7 @@ namespace LightDB
             if (seek == data.Length)//add 8 byte
             {
                 byte[] newdata = new byte[data.Length + 8];
-                for(var i=0;i<data.Length;i++)
+                for (var i = 0; i < data.Length; i++)
                 {
                     newdata[i] = data[i];
                 }
@@ -198,9 +198,9 @@ namespace LightDB
             v.ParseValue();
             return v;
         }
-        public byte[] ToBytes(bool withLast)
+        public byte[] ToBytes(bool withLastModifyHeight)
         {
-            byte[] data = new byte[2 + this.tag.Length + 4 + this.value.Length + 8];
+            byte[] data = new byte[2 + this.tag.Length + 4 + this.value.Length + (withLastModifyHeight ? 8 : 0)];
             int seek = 0;
             //write type
             data[seek] = (byte)this.type; seek++;
@@ -221,7 +221,7 @@ namespace LightDB
                 data[seek] = this.value[i]; seek++;
             }
             //write last
-            if (withLast)
+            if (withLastModifyHeight)
             {
                 byte[] last = BitConverter.GetBytes(this.lastHeight);
                 for (var i = 0; i < 8; i++)
