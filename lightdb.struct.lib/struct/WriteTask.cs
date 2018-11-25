@@ -166,7 +166,7 @@ namespace LightDB
             {
                 foreach (var item in extData)
                 {
-                    byte[] key = item.Key.ToBytes_HexParse();
+                    byte[] key = item.Key.ToBytes_UTF8Encode();
                     byte[] v = item.Value;
                     byte numkey = (byte)key.Length;
                     byte[] numv = BitConverter.GetBytes((UInt32)v.Length);
