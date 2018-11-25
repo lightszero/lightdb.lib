@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\lightdb\lightdb.lib.csproj" />
+    <ProjectReference Include="..\lightdb.lib\lightdb.lib.csproj" />
   </ItemGroup>
 
 </Project>
