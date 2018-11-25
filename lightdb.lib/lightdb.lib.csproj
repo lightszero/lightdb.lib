@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard20</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.1.1</Version>
+    <Version>1.1.2</Version>
     <PackageProjectUrl>https://github.com/lightszero/lightdb.lib</PackageProjectUrl>
   </PropertyGroup>
 
@@ -39,7 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="lightdb.struct.lib" Version="1.0.0" />
+    <PackageReference Include="lightdb.struct.lib" Version="1.0.1" />
     <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
   </ItemGroup>
 
